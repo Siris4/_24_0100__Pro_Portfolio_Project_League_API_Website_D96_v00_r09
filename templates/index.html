@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Game Data</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="/static/styles.css"> <!-- Assuming your CSS is served from /static -->
+</head>
+<body>
+
+    <div class="container">
+        <h1>Fetch Live Game Data</h1>
+
+        <button id="fetch-live-game">Get Live Game Data</button>
+
+        <div id="game-data" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#fetch-live-game').click(function() {
+                $.ajax({
+                    url: '/get-live-game',
+                    method: 'GET',
+                    success: function(data) {
+                        if (data.error) {
+                            $('#game-data').html('<p class="error">' + data.error + '</p>');
+                        } else {
+                            var html = '';
+                            html += '<h2>Game Information</h2>';
+                            html += '<p><strong>Game ID:</strong> ' + data.gameId + '</p>';
+                            html += '<p><strong>Game Length:</strong> ' + data.gameLength + ' seconds</p>';
+                            html += '<p><strong>Game Mode:</strong> ' + data.gameMode + '</p>';
+                            html += '<p><strong>Game Queue Config ID:</strong> ' + data.gameQueueConfigId + '</p>';
+                            html += '<p><strong>Game Start Time:</strong> ' + new Date(data.gameStartTime).toLocaleString() + '</p>';
+                            html += '<p><strong>Game Type:</strong> ' + data.gameType + '</p>';
+                            html += '<p><strong>Map ID:</strong> ' + data.mapId + '</p>';
+                            html += '<p><strong>Platform ID:</strong> ' + data.platformId + '</p>';
+
+                            html += '<h2>Observers</h2>';
+                            html += '<p><strong>Encryption Key:</strong> ' + data.observers.encryptionKey + '</p>';
+
+                            if (data.participants.length > 0) {
+                                html += '<h2>Participants</h2>';
+                                data.participants.forEach(function(participant, index) {
+                                    html += '<h3>Participant ' + (index + 1) + '</h3>';
+                                    html += '<p><strong>Riot ID:</strong> ' + participant.riotId + '</p>';
+                                    html += '<p><strong>Team ID:</strong> ' + participant.teamId + '</p>';
+                                    html += '<p><strong>Champion ID:</strong> ' + participant.championId + '</p>';
+                                    html += '<p><strong>Profile Icon ID:</strong> ' + participant.profileIconId + '</p>';
+                                    html += '<p><strong>Spell 1 ID:</strong> ' + participant.spell1Id + '</p>';
+                                    html += '<p><strong>Spell 2 ID:</strong> ' + participant.spell2Id + '</p>';
+
+                                    // Display perks
+                                    html += '<h4>Perks</h4>';
+                                    html += '<p><strong>Main Style:</strong> ' + participant.perks.perkStyle + '</p>';
+                                    html += '<p><strong>Sub Style:</strong> ' + participant.perks.perkSubStyle + '</p>';
+                                    html += '<p><strong>Perk IDs:</strong> ' + participant.perks.perkIds.join(', ') + '</p>';
+                                });
+                            }
+
+                            $('#game-data').html(html); // Insert the human-readable output into the DOM
+                        }
+                    },
+                    error: function() {
+                        $('#game-data').html('<p class="error">An error occurred while fetching live game data.</p>');
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
